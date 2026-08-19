@@ -1,48 +1,115 @@
 #include <iostream>
-#include <string>
 using namespace std;
 
-// Scope{} -- the variety of subjects that are being discussed or considered
-// A stack based Enity gets deleted after the end of the scope from the memory
-// But a Heap beased Entity doesn't till the termination of the program by the user
-class Entity{
-    public:
-    Entity(){
-        cout << "created Entity" << endl;
+// A stack-based Entity is destroyed automatically
+// when it reaches the end of its scope.
+//
+// A heap-based Entity remains alive until it is
+// explicitly deleted.
+
+class Entity {
+public:
+    Entity() {
+        cout << "Created Entity" << endl;
     }
 
-    ~Entity(){
+    ~Entity() {
         cout << "Destroyed Entity" << endl;
     }
 };
 
-int* CreateArray(int* array){ // or we can do it like void CreateArray(int* array){}
-    // int array[50];
-    return array; // still a stack based array
 
-    int* array = new int[50];// this is heap based, and will stick around till the end
+// --------------------------------------------------
+// Option 1: Use an array supplied by the caller
+// --------------------------------------------------
+void CreateArray(int* array) {
 
+    for (int i = 0; i < 50; i++) {
+        array[i] = i;
+    }
 }
 
-class ScopedPtr{
-    private:
-    Entity* m_ptr;
-    public:
-    ScopedPtr(Entity* ptr): m_ptr(ptr){}
-    ~ScopedPtr(){
-        delete m_ptr;
+
+// --------------------------------------------------
+// Option 2: Create an array on the heap
+// --------------------------------------------------
+int* CreateHeapArray() {
+
+    int* array = new int[50];
+
+    for (int i = 0; i < 50; i++) {
+        array[i] = i;
     }
 
+    return array;
+}
+
+
+// --------------------------------------------------
+// A simple smart-pointer-like class
+// --------------------------------------------------
+class ScopedPtr {
+private:
+    Entity* m_ptr;
+
+public:
+    ScopedPtr(Entity* ptr)
+        : m_ptr(ptr) {}
+
+    ~ScopedPtr() {
+        delete m_ptr;
+    }
 };
 
 
-int main(){
+int main() {
 
-    ScopedPtr e = new Entity(); // implicit conversion 
-    // int* a = CreatArray();
+    // ----------------------------------------------
+    // STACK OBJECT
+    // ----------------------------------------------
+    {
+        Entity stackEntity;
+    } // stackEntity is automatically destroyed here
+
+
+    // ----------------------------------------------
+    // HEAP OBJECT
+    // ----------------------------------------------
+    {
+        Entity* heapEntity = new Entity;
+
+        delete heapEntity;
+    } // heapEntity was deleted above
+
+
+    // ----------------------------------------------
+    // ScopedPtr / RAII
+    // ----------------------------------------------
+    {
+        ScopedPtr scopedEntity = new Entity();
+    } // ScopedPtr destructor deletes Entity automatically
+
+
+    // ----------------------------------------------
+    // STACK ARRAY
+    // ----------------------------------------------
     int array[50];
+
     CreateArray(array);
 
-    Entity e;              //Stack based initilisation
-    Entity* e = new Entity;//Heap based initialisation
+    cout << "array[0] = " << array[0] << endl;
+    cout << "array[49] = " << array[49] << endl;
+
+
+    // ----------------------------------------------
+    // HEAP ARRAY
+    // ----------------------------------------------
+    int* heapArray = CreateHeapArray();
+
+    cout << "heapArray[0] = " << heapArray[0] << endl;
+    cout << "heapArray[49] = " << heapArray[49] << endl;
+
+    delete[] heapArray;
+
+    return 0;
 }
