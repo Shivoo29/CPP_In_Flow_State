@@ -18,7 +18,7 @@ public:
     String(const char* string)
     {
         m_Size = strlen(string);
-        m_Buffer = new char[m_Size + 1];
+        m_Buffer = new char[m_Size + 1]; 
         // for ( int i = 0; i < m_Size; i++)
         // {
         //     m_Buffer[i] = string[i];
@@ -26,7 +26,20 @@ public:
         memcpy(m_Buffer, string, m_Size);
         m_Buffer[m_Size] = 0;
     }
+
+    ~String()
+    {
+        delete[] m_Buffer;
+    }
+    
+    friend ostream& operator<<(ostream& stream, const String& string);
 };
+
+ostream& operator<<(ostream& stream, const String& string)
+{
+    stream << string.m_Buffer;
+    return stream;
+}
 
 int main(){
     Vector2 a = { 2, 3 };
@@ -36,4 +49,11 @@ int main(){
     //Vector2* a = new Vector2();
     //Vector2* b = a;
     //b->a = 2;
+
+    String string = "Shivam";
+    String second = string;
+
+    cout << string << endl;
+    cout << second << endl;
+
 }
